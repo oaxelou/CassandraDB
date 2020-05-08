@@ -1,0 +1,151 @@
+{% load static %}
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" />
+  </head>
+  <body>
+  	<div class="s012">
+      <div class="form">
+        <div class="home_btn">
+          <a href="/">Home</a>
+        </div>
+
+        <fieldset><legend>{{poi.name}}</legend></fieldset>
+        <div class="poi">
+          <h5>Address: {{poi.address}},&nbsp;{{poi.city}},&nbsp;{{poi.state}}</h5>
+          <h5>Postal Code: {{poi.postal_code}}</h5>
+          <h5>Coordinates: {{poi.latitude}},{{poi.longtitude}}</h5>
+          <p><b>Categories:</b><br>
+              {% for categ in poi.categories %}
+                {{categ}},
+              {% endfor %}
+            ...</p>
+          <br>
+          	<h5>Stars: {{poi.stars}}</h5>
+          <div class="table">
+            <div class="column">
+            	<table>
+				  	<tr><th>HOURS:</th></tr>
+				  	{% for key,value in poi.hours %}
+					    <tr>
+					      <td>{{key}}</td>
+					      <td>{{value}}</td>
+					    </tr>
+				  	{% endfor %}
+				</table>
+            	<table>
+				  	<tr><th>Ambience:</th></tr>
+				  	{% for key,value in poi.ambience.items %}
+					    <tr>
+					      <td>{{key}}</td>
+					      <td>{{value}}</td>
+					    </tr>
+				  	{% endfor %}
+				</table>
+            	<table>
+				  	<tr><th>Good for meal:</th></tr>
+				  	{% for key,value in poi.good_for_meal.items %}
+					    <tr>
+					      <td>{{key}}</td>
+					      <td>{{value}}</td>
+					    </tr>
+				  	{% endfor %}
+				</table>
+            	<table>
+				  	<tr><th>Music:</th></tr>
+				  	{% for key,value in poi.music.items %}
+					    <tr>
+					      <td>{{key}}</td>
+					      <td>{{value}}</td>
+					    </tr>
+				  	{% endfor %}
+				</table>
+            	<table>
+				  	<tr><th>Business Parking:</th></tr>
+				  	{% for key,value in poi.business_parking.items %}
+					    <tr>
+					      <td>{{key}}</td>
+					      <td>{{value}}</td>
+					    </tr>
+				  	{% endfor %}
+				</table>
+
+
+				<table>
+				  <tr><th>GENERAL ATTRIBUTES:</th></tr>
+				  	{% for key,value in poi.general_attributes %}
+				    	<tr>
+				    	  <td>{{key}}</td>
+				    	  <td>{{value}}</td>
+				   		</tr>
+				 	{% endfor %}
+				</table>
+            </div>
+            <div class="column">
+              <br><br> 
+              <div class="poi">
+              	<h3>Enter review:</h3>
+              	<form action="/insert_review" method="get">
+              		<input type="hidden" name="businessid" value="{{poi.businessid}}">
+              		<input type="hidden" name="city" value="{{poi.city}}">
+              		<input type="text" name="userid" placeholder="userid" size='10' required="required"/>
+              		<input type="text" name="username" placeholder="name" size='10' required="required"/>
+              		<h6 style="color: rgb(90,90,90);">*If user already exists, then the name given in this form is ignored</h6> 
+              		Enter review here:<br>
+              		<textarea rows="5" style="max-width:90%;width:90%;border-radius:8px;" required="required" name="review"></textarea>
+              		<br><br><input id="checkIfExists" type="checkbox" name="checkIfExists"/>
+              		<label for="checkIfExists" style="color: rgb(90,90,90);">Create user if doesn't exist</label>
+              		<br><br><input type="number" step="0.1" placeholder="stars" size='3' min="0" max="5.0" required="required" name="stars">
+              		<button type="submit">Submit Review</button>
+              	</form>
+              </div>
+
+              <br><br> 
+              <div class="poi">
+              	<h3>Enter tip:</h3>
+              	<form action="/insert_tip" method="get">
+              		<input type="hidden" name="businessid" value="{{poi.businessid}}">
+              		<input type="hidden" name="city" value="{{poi.city}}">
+              		<input type="text" name="userid" placeholder="userid" size='10' required="required"/>
+              		<input type="text" name="username" placeholder="name" size='10' required="required"/>
+              		<h6 style="color: rgb(90,90,90);">*If user already exists, then the name given in this form is ignored</h6> 
+              		Enter tip here:<br>
+              		<textarea rows="5" style="max-width:90%;width:90%;border-radius:8px;" required="required" name="tip"></textarea>
+              		<br><br><input id="checkIfExists1" type="checkbox" name="checkIfExists"/>
+              		<label for="checkIfExists1" style="color: rgb(90,90,90);">Create user if doesn't exist</label>
+              		<br><br><button type="submit">Submit Tip</button>
+              	</form>
+              </div>
+
+              <br><h3>{{poi.review_count}} vs {{review_count}} Reviews:</h3>
+              {% for review in reviews %}
+              <div class="poi">
+                <h5>{{review.username}}</h5>
+                <i>{{review.date}}</i>
+                <p>{{review.review}}</p>
+                <p>{{review.stars}} stars</p>
+                <form action="/user" method="get">
+	              <input type="hidden" name="userid" value="{{review.userid}}">
+	              <button type="submit">See more on this user...</button>
+	            </form>
+              </div>
+              {% endfor %}
+              <br><h5>{{tip_count} Tips:</h5>
+              {% for tip in tips %}
+              <div class="poi">
+                <h5>{{tip.username}}</h5>
+                <i>{{tip.date}}</i>
+                <p>{{tip.tip}}</p>
+                <form action="/user" method="get">
+	              <input type="hidden" name="userid" value="{{tip.userid}}">
+	              <button type="submit">See more on this user...</button>
+	            </form>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+	  	</div>
+	</div>
+  </body>
+</html> 

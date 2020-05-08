@@ -1,0 +1,45 @@
+{% load static %}
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" />
+  </head>
+  <body>
+  	<div class="s012">
+      <div class="form">
+        <div class="home_btn">
+          <a href="/">Home</a>
+        </div>
+        <h1>User Information</h1>
+        <div class="poi">
+			<p><b>Name:</b> {{user.name}}<br>
+			<b>Review count:</b> {{user.review_count}}<br>
+			<b>Average stars:</b> {{user.average_stars}}<br></p>
+
+			<div class="table">
+				<div class="column">
+					<h3>Reviews:</h3>
+					{% for review in reviews %}
+		              <div class="poi">
+		                <p><b>Business name:</b> {{review.business_name}}<br>
+		                <b>Date:</b> {{review.date}}<br>
+		                <b>Stars:</b> {{review.stars}} stars<br>
+		                <b>Review:</b> {{review.review}}</p>
+		              </div>
+		            {% endfor %}
+		        </div>
+		        <div class="column">
+					<h3>Tips:</h3>
+					{% for tip in tips %}
+						<div class="poi">
+							<p><b>Business_name:</b> {{tip.business_name}}<br>
+							<b>Date:</b> {{tip.date}}<br>
+							<b>Tip:</b> {{tip.tip}}<br>
+						</div>
+					{% endfor %}
+		        </div>
+		    </div>
+        </div>
+	</div>
+  </body>
+</html> 

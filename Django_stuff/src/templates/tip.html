@@ -1,0 +1,33 @@
+{% load static %}
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" />
+  </head>
+  <body>
+  	<div class="s012">
+      <div class="form">
+        <div class="home_btn">
+          <a href="/">Home</a>
+        </div>
+        {% if successfulInsert %}
+			<h3>Tip successfully inserted</h3>
+			{% if createUser %}
+				<h4>User successfully created</h4>
+			{% endif %}
+		{% else %}
+			<h3>Tip has not been inserted</h3>
+		{% endif %}
+        <div class="poi">
+			<!-- Userid: {{userid}}<br> -->
+			<p><b>Name</b>: {{username}}<br>
+			<b>Tip</b>: {{tip}}<br></p>
+
+			<form action="/user" method="get">
+	          <input type="hidden" name="userid" value="{{userid}}">
+	          <button type="submit">See more on this user...</button>
+	        </form>
+        </div>
+	</div>
+  </body>
+</html> 

@@ -1,0 +1,203 @@
+{% load static %}
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="s012"><div class="form">
+      
+        <div class="home_btn">
+          <a href="/">Home</a>
+        </div>
+        <fieldset><legend>Places in <i>{{city}}</i>:</legend></fieldset>
+        <div class="inner-form"><div class="main-form" id="main-form">
+          <form action="/results" method="get" autocomplete="on">
+        	<br><div class="row last">
+              <button class="btn-search" type="submit">Search</button>
+            </div>
+            <div class="row third">
+        	  <h2>Search Filters:</h2>
+              <input type="hidden" name="city" value="{{city}}">
+              <input type="hidden" name="categories" value="{{categories}}">
+              <h3>Stars:</h3>
+              <p> If multiple are checked, then the largest number is taken as a final answer. 
+                  If none is checked, then this filter is omitted.</p>
+              <div class="input-checkbox">
+                <input id="one-star" type="checkbox" name="one-star"/>
+                <label for="one-star">>=1</label>
+                <br><input id="two-stars" type="checkbox" name="two-stars"/>
+                <label for="two-stars">>=2</label>
+                <br><input id="three-stars" type="checkbox" name="three-stars"/>
+                <label for="three-stars">>=3</label>
+                <br><input id="four-stars" type="checkbox" name="four-stars"/>
+                <label for="four-stars">>=4</label>
+                <br><input id="five-stars" type="checkbox" name="five-stars"/>
+                <label for="five-stars"> =5</label><br>
+              </div>
+              <!-- <h3>Hours Per day:</h3> -->
+              <h3>Noise Level:</h3>
+              <p> If multiple are checked, then the largest number is taken as a final answer. 
+                  If none is checked, then this filter is omitted.</p>
+              <div class="input-checkbox">
+                <input id="quiet" type="checkbox" name="quiet"/>
+                <label for="quiet">Quiet</label>
+                <br><input id="average" type="checkbox" name="average"/>
+                <label for="average">Average</label>
+                <br><input id="loud" type="checkbox" name="loud"/>
+                <label for="loud">Loud</label>
+                <br><input id="very-loud" type="checkbox" name="very-loud"/>
+                <label for="very-loud">Very Loud</label><br>
+              </div>
+              <h3>GOOD FOR MEAL:</h3>
+              <p> If multiple are checked, each one of the checked has to be true. 
+                  If none is checked, then this filter is omitted.</p>
+              <div class="input-checkbox">
+                <input id="meal-breakfast" type="checkbox" name="meal-breakfast"/>
+                <label for="meal-breakfast">Breakfast</label>
+                <br><input id="meal-brunch" type="checkbox" name="meal-brunch"/>
+                <label for="meal-brunch">Brunch</label>
+                <br><input id="meal-lunch" type="checkbox" name="meal-lunch"/>
+                <label for="meal-lunch">Lunch</label>
+                <br><input id="meal-dinner" type="checkbox" name="meal-dinner"/>
+                <label for="meal-dinner">Dinner</label>
+                <br><input id="meal-dessert" type="checkbox" name="meal-dessert"/>
+                <label for="meal-dessert">Dessert</label>
+                <br><input id="meal-latenight" type="checkbox" name="meal-latenight"/>
+                <label for="meal-latenight">Latenight</label><br>
+              </div>
+              <h3>Business Parking:</h3>
+              <p> If multiple are checked, each one of the checked has to be true. 
+                  If none is checked, then this filter is omitted.</p>
+              <div class="input-checkbox">
+                <input id="parking-garage" type="checkbox" name="parking-garage"/>
+                <label for="parking-garage">Garage</label>
+                <br><input id="parking-street" type="checkbox" name="parking-street"/>
+                <label for="parking-street">Street</label>
+                <br><input id="parking-validated" type="checkbox" name="parking-validated"/>
+                <label for="parking-validated">Validated</label>
+                <br><input id="parking-lot" type="checkbox" name="parking-lot"/>
+                <label for="parking-lot">Lot</label>
+                <br><input id="parking-valet" type="checkbox" name="parking-valet"/>
+                <label for="parking-valet">Valet</label><br>
+              </div>
+              <h3>AMBIENCE:</h3>
+              <p> If multiple are checked, each one of the checked has to be true. 
+                  If none is checked, then this filter is omitted.</p>
+              <div class="input-checkbox">
+                <input id="ambience-romantic" type="checkbox" name="ambience-romantic"/>
+                <label for="ambience-romantic">Romantic</label>
+                <br><input id="ambience-intimate" type="checkbox" name="ambience-intimate"/>
+                <label for="ambience-intimate">Intimate</label>
+                <br><input id="ambience-clasy" type="checkbox" name="ambience-clasy"/>
+                <label for="ambience-clasy">Classy</label>
+                <br><input id="ambience-hipster" type="checkbox" name="ambience-hipster"/>
+                <label for="ambience-hipster">Hipster</label>
+                <br><input id="ambience-divey" type="checkbox" name="ambience-divey"/>
+                <label for="ambience-divey">Divey</label>
+                <br><input id="ambience-touristy" type="checkbox" name="ambience-touristy"/>
+                <label for="ambience-touristy">Touristy</label>
+                <br><input id="ambience-trendy" type="checkbox" name="ambience-trendy"/>
+                <label for="ambience-trendy">Trendy</label>
+                <br><input id="ambience-upscale" type="checkbox" name="ambience-upscale"/>
+                <label for="ambience-upscale">Upscale</label>
+                <br><input id="ambience-casual" type="checkbox" name="ambience-casual"/>
+                <label for="ambience-casual">Casual</label><br>
+              </div>
+              <h3>MUSIC:</h3>
+              <div class="input-checkbox">
+                <input id="music-dj" type="checkbox" name="music-dj"/>
+                <label for="music-dj">DJ</label>
+                <br><input id="music-background" type="checkbox" name="music-background"/>
+                <label for="music-background">Background Music</label>
+                <br><input id="music-no-music" type="checkbox" name="music-no-music"/>
+                <label for="music-no-music">No Music</label>
+                <br><input id="music-karaoke" type="checkbox" name="music-karaoke"/>
+                <label for="music-karaoke">Karaoke</label>
+                <br><input id="music-live" type="checkbox" name="music-live"/>
+                <label for="music-live">Live</label>
+                <br><input id="music-video" type="checkbox" name="music-video"/>
+                <label for="music-video">Video</label>
+                <br><input id="music-jukebox" type="checkbox" name="music-jukebox"/>
+                <label for="music-jukebox">Jukebox</label><br>
+              </div>
+              <h3>OTHER ATTRIBUTES:</h3>
+              <div class="input-checkbox">
+                <input id="appointment-only" type="checkbox" name="appointment-only"/>
+                <label for="appointment-only">By Appointment Only</label>
+                <br><input id="accepts-card" type="checkbox" name="accepts-card"/>
+                <label for="accepts-card">Business Accepts Credit Card</label>
+                <br><input id="accepts-bitcoin" type="checkbox" name="accepts-bitcoin"/>
+                <label for="accepts-bitcoin">Business Accepts Bitcoin</label>
+                <br><input id="hasTv" type="checkbox" name="hasTv"/>
+                <label for="hasTv">TV</label>
+                <br><input id="hasWifi" type="checkbox" name="hasWifi"/>
+                <label for="hasWifi">Free WiFi</label>
+                <br><input id="alcohol" type="checkbox" name="alcohol"/>
+                <label for="alcohol">Alcohol</label>
+                <br><input id="happy-hour" type="checkbox" name="happy-hour"/>
+                <label for="happy-hour">Has Happy Hour</label>
+                <br><input id="good-for-dancing" type="checkbox" name="good-for-dancing"/>
+                <label for="good-for-dancing">Good for Dancing</label>
+                <br><input id="reservations" type="checkbox" name="reservations"/>
+                <label for="reservations">Reservations</label>
+                <br><input id="caters" type="checkbox" name="caters"/>
+                <label for="caters">Caters</label>
+                <br><input id="take-out" type="checkbox" name="take-out"/>
+                <label for="take-out">Take Out</label>
+                <br><input id="good-for-groups" type="checkbox" name="good-for-groups"/>
+                <label for="good-for-groups">Good for Groups</label>
+                <br><input id="delivery" type="checkbox" name="delivery"/>
+                <label for="delivery">Delivery</label>
+                <br><input id="drive-thru" type="checkbox" name="drive-thru"/>
+                <label for="drive-thru">Drive Thru</label>
+                <br><input id="outdoor-seating" type="checkbox" name="outdoor-seating"/>
+                <label for="outdoor-seating">Outdoor Seating</label>
+                <br><input id="bike-parking" type="checkbox" name="bike-parking"/>
+                <label for="bike-parking">Bike Parking</label>
+                <br><input id="wheelchair" type="checkbox" name="wheelchair"/>
+                <label for="wheelchair">Wheelchair Accessible</label>
+                <br><input id="dogs-allowed" type="checkbox" name="dogs-allowed"/>
+                <label for="dogs-allowed">Dogs Allowed</label>
+                <br><input id="good-for-kids" type="checkbox" name="good-for-kids"/>
+                <label for="good-for-kids">Good for Kids</label><br>
+                </div>
+              </div>
+              <h3>Categories:</h3>
+              <p> If none of the categories is selected, then this filter is ignored</p>
+              <div class="input-checkbox">
+              	{% for cat in categories %}
+	                <input id="{{cat}}" type="checkbox" name="{{cat}}"/>
+	                <label for="{{cat}}">{{cat}}</label><br>
+                {% endfor %}
+              </div>
+            </form>
+        </div></div>
+        <div class="inner-form"><div class="main-form" id="main-form">
+        <h2>All Results:</h2>
+          {% for poi in pois %}
+          	<div class="poi">
+          		<h3>{{poi.name}}</h3>
+          		<p><b>Catgories:</b><br>
+          			{% for categ in poi.categories %}
+          				{{categ}},
+          			{% endfor %}
+          		...</p>
+            	<p><b>Hours:</b>
+            	{% for key,value in poi.hours %}
+            		<br>{{key}}:&nbsp; {{value}}
+        		{% endfor %}
+            	</p>
+            	<p><b>Stars: {{poi.stars}} ({{poi.review_count}} reviews)</b></p>
+            	<form action="/business" method="get">
+              		<input type="hidden" name="businessid" value="{{poi.businessid}}">
+              		<button class="btn-search" type="submit">See more...</button>
+           		</form>
+          	</div>
+          {% endfor %}
+        </div></div>
+
+  	  </div>
+    </div>
+  </body>
+</html>

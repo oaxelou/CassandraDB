@@ -1,0 +1,37 @@
+{% load static %}
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="s012">
+      <div class="form">
+        <div class="home_btn">
+          <a href="/">Home</a>
+        </div>
+        <h1>Search Results:</h1>
+        {% for poi in pois %}
+          <div class="poi">
+            <h3>{{poi.name}}</h3>
+            <p><b>Catgories:</b><br>
+              {% for categ in poi.categories %}
+                {{categ}},
+              {% endfor %}
+            </p>
+            <p><b>Hours:</b>
+            {% for key,value in poi.hours %}
+              <br>{{key}}:&nbsp; {{value}}
+            {% endfor %}
+            </p>
+            <p><b>Stars: {{poi.stars}} ({{poi.review_count}} reviews)</b></p>
+            <form action="/business" method="get">
+              <input type="hidden" name="businessid" value="{{poi.businessid}}">
+              <button class="btn-search" type="submit">See more...</button>
+            </form>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>
