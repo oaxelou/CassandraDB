@@ -1,3 +1,9 @@
+""" Olympia Axelou, May 2020
+ This script is part of the project "A POI search engine using CassandraDB"
+ 
+ In here, all the usrls are defined are associated with a view (from search_engine.views)
+"""
+
 """POI_search_engine URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:

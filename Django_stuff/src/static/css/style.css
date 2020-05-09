@@ -1,18 +1,14 @@
-
+/* Olympia Axelou, May 2020
+ This file is the CSS of the project "A POI search engine using CassandraDB"
+ It's used in the Django Project. So, it can't be run alone!
+ "
+ */
 html {
   line-height: 1.3;
-  /* 1 */
   -ms-text-size-adjust: 100%;
-  /* 2 */
   -webkit-text-size-adjust: 100%;
-  /* 2 */
 }
 
-/* Sections
-   ========================================================================== */
-/**
- * Remove the margin in all browsers (opinionated).
- */
 body {
   margin: 0;
   background: url("../images/Search_001.png");

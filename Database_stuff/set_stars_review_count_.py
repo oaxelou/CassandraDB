@@ -1,3 +1,10 @@
+""" Olympia Axelou, May 2020
+ This script is part of the project "A POI search engine using CassandraDB"
+ 
+ It's used to set stars and review_count correctly, as there was a difference
+ between business.json & review.json
+
+"""
 from cassandra.cluster import Cluster
 import cassandra 
 

@@ -1,6 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+"""Olympia Axelou, May 2020
+ This script is part of the project "A POI search engine using CassandraDB"
+ 
+ In here, all the views are defined
+"""
 
+from __future__ import unicode_literals
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View
@@ -11,35 +15,78 @@ import ast
 cluster = Cluster()
 session = cluster.connect('recommendations_keyspace')
  
-
-# Create your views here.
+# The home page of our website
 def home(request):
+	# Get all the cities in the DB for the autocomplete to help user
 	query_str="select distinct city from business_by_city;"
 	rowRes=session.execute(query_str);
 	cities=[]
-	# print "\n\nCount:", len(rowRes.current_rows)
 	for row in rowRes:
 		cities.append(row.city) 
-	# cities=['Olympia']
 	context={'cities':cities, 'olympia':'Olympia'}
 	return render(request, "home.html", context) # {}: context variables
 
+# The page that the user is redirected when he's chosen a city
+def search(request):
+	if request.method == "GET":
+		if 'city' not in request.GET:
+			print "SHOULD NEVER REACH THIS. city not in parameters"
+			return HttpResponse("<h1>No city specified. No data to display!</h1>",{})
+
+		query_str="select * from business_by_city where city='" + request.GET['city'] + "';"
+		rowRes=session.execute(query_str);
+		pois=[]
+		all_categories=[]
+		businessids=[]
+		for row in rowRes:
+			pois.append({'name':row.name})
+			pois[len(pois)-1]['businessid']=row.businessid
+			pois[len(pois)-1]['stars']=row.stars
+			pois[len(pois)-1]['review_count']=row.review_count
+			
+			# Get all categories from every POI that showed up 
+			# and store them in all_categories
+			pois[len(pois)-1]['categories']=[]
+			if row.categories:
+				for category in row.categories:
+					pois[len(pois)-1]['categories'].append(str(category))
+					if category not in all_categories:
+						all_categories.append(str(category))
+			# Hours
+			hours=[]
+			hours.append(('Mon',row.hours['Monday']))
+			hours.append(('Tue',row.hours['Tuesday']))
+			hours.append(('Wed',row.hours['Wednesday']))
+			hours.append(('Thu',row.hours['Thursday']))
+			hours.append(('Fri',row.hours['Friday']))
+			hours.append(('Sat',row.hours['Saturday']))
+			hours.append(('Sun',row.hours['Sunday']))
+			pois[len(pois)-1]['hours']=hours
+
+			businessids.append(row.businessid)
+		context={'city':request.GET['city'], 'categories':all_categories, 'pois':pois, 'businessids':businessids}
+		return render(request, "search.html", context) # {}: context variables
+	else:
+		return HttpResponse("<h1>POST method is not supported</h1>",{})
+
+# The page that the user is redirected after the search with the filters
 def results(request):
 	if request.method=="GET":
-		# print request.GET.getlist('status')
 		if 'city' in request.GET:
 			print "Found city:",request.GET.get('city')
 		else:
 			print "SHOULD NEVER REACH THIS. city not in parameters"
 			return HttpResponse("<h1>No city specified. No data to display!</h1>",{})
 
-		# GET ALL POIS (GIVEN BY THE PARAMETERS) FROM DB BY THEIR businessid
+		# Get all POIs (given by the parametrs) from DB by their businessid
 		query_str="select * from business_by_city where city='" + request.GET['city'] + "';"
 		rowRes=session.execute(query_str);
 		pois=[]
 		for row in rowRes:
-			# Name
+			# Get name
 			pois.append({'name':row.name})
+			# Get businessid
+			pois[len(pois)-1]['businessid']=row.businessid
 			# Categories
 			pois[len(pois)-1]['categories']=[]
 			if row.categories:
@@ -55,26 +102,18 @@ def results(request):
 			hours.append(('Sat',row.hours['Saturday']))
 			hours.append(('Sun',row.hours['Sunday']))
 			pois[len(pois)-1]['hours']=hours
-			# Stars
+
+			# Other Attributes
 			pois[len(pois)-1]['stars']=row.stars
 			pois[len(pois)-1]['review_count']=row.review_count
-			# BUSINESSID
-			pois[len(pois)-1]['businessid']=row.businessid
-
-			# GENERAL ATTRIBUTES
 			general_attributes=row.general_attributes
-			# Noise Level
 			pois[len(pois)-1]['noiselevel']=general_attributes['noiselevel']
-			# Good for meal
 			pois[len(pois)-1]['good_for_meal']=row.good_for_meal
-			# Business parking
 			pois[len(pois)-1]['business_parking']=row.business_parking
-			# Ambience
 			pois[len(pois)-1]['ambience']=row.ambience
-			# Music
-			pois[len(pois)-1]['music']=row.ambience
+			pois[len(pois)-1]['music']=row.music
 
-			# GENERAL ATTRIBUTS
+			# General Attributes
 			pois[len(pois)-1]['alcohol']=general_attributes['alcohol']
 			pois[len(pois)-1]['bikeparking']=general_attributes['bikeparking']
 			pois[len(pois)-1]['business_accepts_bitcoin']=general_attributes['business_accepts_bitcoin']
@@ -96,10 +135,10 @@ def results(request):
 			pois[len(pois)-1]['has_tv']=general_attributes['has_tv']
 			pois[len(pois)-1]['wifi']=general_attributes['wifi']
 
+		# a list to print the search filters in the results page
 		search_filters=[]
-		# FILTER POIS BY THE CATEGORIES
+		# Filter POIs by the Categories
 		if 'categories' in request.GET:
-			# print "Found categories:",request.GET.getlist('categories')
 			categories=ast.literal_eval(request.GET.get('categories'))
 			category_filtered_pois=[]
 			categ_num=0
@@ -112,8 +151,6 @@ def results(request):
 							category_filtered_pois.append(poi)
 			if categ_num>0:
 				pois=category_filtered_pois
-			# else:
-			# 	print "\n\nNO CATEGORIES DETERMINED"
 		else:
 			print "SHOULD NEVER REACH THIS. categories not in parameters"
 			return HttpResponse("<h1>No categories specified. No data to display!</h1>",{})
@@ -136,7 +173,6 @@ def results(request):
 		if 'five-stars' in request.GET:
 			min_stars=5
 			search_filters.append("5 stars")
-		print "Should have minimum ", min_stars, " stars."
 		
 		min_stars_pois=[]
 		for poi in pois:
@@ -156,7 +192,6 @@ def results(request):
 			for noise_level in noise_levels:
 				for poi in pois:
 					if noise_level==poi['noiselevel'] and poi not in noise_level_pois:
-						print "found ", poi['name']
 						noise_level_pois.append(poi)
 			pois=noise_level_pois
 
@@ -169,7 +204,6 @@ def results(request):
 		if 'meal-dessert' in request.GET:meals.append('dessert');search_filters.append("meal: dessert")
 		if 'meal-latenight' in request.GET:meals.append('latenight');search_filters.append("meal: latenight")
 		meals_pois=[]
-		print "\ngood_for_meals:",meals
 		if meals:
 			for poi in pois:
 				isOk=True
@@ -188,7 +222,6 @@ def results(request):
 		if 'parking-valet' in request.GET:parkings.append('valet');search_filters.append("parking: valet")
 		if 'parking-validated' in request.GET:parkings.append('validated');search_filters.append("parking: validated")
 		parkings_pois=[]
-		print "\bbusiness_parking:",parkings
 		if parkings:
 			for poi in pois:
 				isOk=True
@@ -210,7 +243,6 @@ def results(request):
 		if'ambience-upscale' in request.GET:ambiences.append('upscale');search_filters.append("ambience: upscale")
 		if'ambience-casual' in request.GET:ambiences.append('casual');search_filters.append("ambience: casual")
 		ambiences_pois=[]
-		print "\bambiences:",ambiences
 		if ambiences:
 			for poi in pois:
 				isOk=True
@@ -232,7 +264,6 @@ def results(request):
 		if 'music-video' in request.GET:musics.append('video');search_filters.append("ambience: video")
 		if 'music-jukebox' in request.GET:musics.append('jukebox');search_filters.append("ambience: jukebox")
 		music_pois=[]
-		print "\bmusics:",musics
 		if musics:
 			for poi in pois:
 				isOk=True
@@ -385,70 +416,19 @@ def results(request):
 				general_attributes_pois.append(poi)
 		
 		if atleastOne:
-			print "At least one!!!!"
 			pois=general_attributes_pois
-		else:
-			print "pois hasn't change"
-	
-		# poi['restaurants_pricerange']
 
 		context={'pois':pois,"search_filters":search_filters}
 		return render(request, "results.html", context) # {}: context variables
 	else:
 		return HttpResponse("<h1>POST method is not supported</h1>",{})
 
-def search(request):
-	if request.method == "GET":
-		if 'city' not in request.GET:
-			print "SHOULD NEVER REACH THIS. city not in parameters"
-			return HttpResponse("<h1>No city specified. No data to display!</h1>",{})
-
-		query_str="select * from business_by_city where city='" + request.GET['city'] + "';"
-		rowRes=session.execute(query_str);
-		pois=[]
-		all_categories=[]
-		businessids=[]
-		for row in rowRes:
-			# Name
-			pois.append({'name':row.name})
-			# print "pois[current]=",pois[len(pois)-1]['name']
-			# Categories
-			pois[len(pois)-1]['categories']=[]
-			if row.categories:
-				for category in row.categories:
-					pois[len(pois)-1]['categories'].append(str(category))
-					if category not in all_categories:
-						all_categories.append(str(category))
-			# Hours
-			hours=[]
-			hours.append(('Mon',row.hours['Monday']))
-			hours.append(('Tue',row.hours['Tuesday']))
-			hours.append(('Wed',row.hours['Wednesday']))
-			hours.append(('Thu',row.hours['Thursday']))
-			hours.append(('Fri',row.hours['Friday']))
-			hours.append(('Sat',row.hours['Saturday']))
-			hours.append(('Sun',row.hours['Sunday']))
-			pois[len(pois)-1]['hours']=hours
-			# Stars
-			pois[len(pois)-1]['stars']=row.stars
-			pois[len(pois)-1]['review_count']=row.review_count
-			# BUSINESSID
-			pois[len(pois)-1]['businessid']=row.businessid
-			businessids.append(row.businessid)
-			# print hours
-			# print "stars:", pois[len(pois)-1]['stars']
-			# print "businessid:", pois[len(pois)-1]['businessid']
-		context={'city':request.GET['city'], 'categories':all_categories, 'pois':pois, 'businessids':businessids}
-		return render(request, "search.html", context) # {}: context variables
-	else:
-		return HttpResponse("<h1>POST method is not supported</h1>",{})
-
+# The page were a POI's details are shown
 def business(request):
 	if request.method == "GET":
 		if 'businessid' not in request.GET:
 			print "SHOULD NEVER REACH THIS. city not in parameters"
 			return HttpResponse("<h1>No business specified. No data to display!</h1>",{})
-		print request.GET['businessid']
 		query_str="select * from business_by_id where businessid='" + request.GET['businessid'] + "';"
 		rowRes=session.execute(query_str);
 		poi={}
@@ -468,7 +448,6 @@ def business(request):
 			if row.categories:
 				for category in row.categories:
 					poi['categories'].append(str(category))
-			# Hours
 			hours=[]
 			hours.append(('Mon',row.hours['Monday']))
 			hours.append(('Tue',row.hours['Tuesday']))
@@ -477,6 +456,7 @@ def business(request):
 			hours.append(('Fri',row.hours['Friday']))
 			hours.append(('Sat',row.hours['Saturday']))
 			hours.append(('Sun',row.hours['Sunday']))
+			
 			poi['hours']=hours
 			poi['stars']=row.stars
 			poi['good_for_meal']=row.good_for_meal
@@ -511,6 +491,7 @@ def business(request):
 			poi['general_attributes']=general_attr
 			break
 		
+		# Going to find all the reviews for this business
 		query_str="select * from review_by_businessid where businessid='" + request.GET['businessid'] + "';"
 		rowRes=session.execute(query_str);
 		reviews=[]
@@ -519,28 +500,28 @@ def business(request):
 			review={}
 			review['date']=row.date
 			review['stars']=row.stars
-			# print row.stars
+			
 			star_sum+=row.stars
 			review['review']=row.review
 			review['userid']=row.userid
-			# print "The userid: ", row.userid
+			
 			query_str="select * from user where userid='" + row.userid + "';"
 			rowRes_user=session.execute(query_str);
 			if not rowRes_user:
 				pass
-				# print "User not found!!"
 			else:
 				for row_user in rowRes_user:
 					pass
-					# print "user's name: ", row_user.name
 			review['username']=row_user.name
 			reviews.append(review)
-			# print "\n\n"
 		poi['stars']=0.5*round(star_sum/float(len(reviews))/0.5)
+		# Going to update the stars in business table, in case 
+		# They have not been updated
 		session.execute("update business_by_id set stars="+ str(poi['stars']) +" where businessid='"+request.GET['businessid']+"';")
 		session.execute("update business_by_city set stars="+ str(poi['stars']) +" where businessid='"+request.GET['businessid']+"' and city='"+poi['city']+"';")
 		review_count=len(reviews)
-		# change review_count & stars here
+
+		# Going to find all the tips for this business
 		query_str="select * from tip_by_businessid where businessid='" + request.GET['businessid'] + "';"
 		rowRes=session.execute(query_str);
 		tips=[]
@@ -554,20 +535,18 @@ def business(request):
 			rowRes_user=session.execute(query_str);
 			if not rowRes_user:
 				pass
-				# print "User not found!!"
 			else:
 				for row_user in rowRes_user:
 					pass
-					# print "user's name: ", row_user.name
 			tip['username']=row_user.name
 			tips.append(tip)
-			# print "\n\n"
 		tip_count=len(tips)
 		context={'poi':poi, 'reviews':reviews, 'tips':tips, 'review_count':review_count, 'tip_count':tip_count}
 		return render(request, "business.html", context) # {}: context variables
 	else:
 		return HttpResponse("<h1>POST method is not supported</h1>",{})
 
+# The page that shows if a review insertion has successful
 def insert_review(request):
 	if request.method=="GET":
 		if 'businessid' not in request.GET or 'userid'not in request.GET or 'username'not in request.GET or 'review'not in request.GET or 'stars'not in request.GET:
@@ -590,13 +569,11 @@ def insert_review(request):
 		query_str="select * from user where userid='" + userid + "';"
 		rowRes=session.execute(query_str);
 		if not rowRes:
-			print("User doesn't exist.")
-			if checkIfExists: # an den uparxei o xrhsths kai thelw na dhmiourghsw
-				# insert user
+			if checkIfExists: # if a user doesn't exist, create him
+				# insert new user
 				query_str="insert into user(userid, average_stars,fans, name, review_count) values('"+userid+"',"+str(stars)+","+str(0)+",'"+username+"', "+str(1)+");"
-				print query_str
 				session.execute(query_str) 
-				# epanalhptika mexri na breis ena review id pou na mhn uparxei mesa
+				# iteratively until you find a reviewid that doesn't exist
 				reviewid=0
 				while True:
 					query_str="select * from review_by_businessid where businessid='"+businessid+"' and reviewid='"+str(reviewid)+"';"
@@ -607,13 +584,13 @@ def insert_review(request):
 				date=datetime.today().strftime('%Y-%m-%d %H:%M:%S')
 				# insert review
 				query_str="insert into review_by_businessid(businessid, reviewid,date, review, stars, userid) values('"+businessid+"','"+str(reviewid)+"','"+date+"','"+review+"',"+str(stars)+",'"+userid+"');"
-				print query_str
 				session.execute(query_str)
 				query_str="insert into review_by_userid(businessid, reviewid,date, review, stars, userid) values('"+businessid+"','"+str(reviewid)+"','"+date+"','"+review+"',"+str(stars)+",'"+userid+"');"
 				session.execute(query_str)
 				
 				successfulInsert=True
 				rowRes_bus=session.execute("select review_count, stars from business_by_id where businessid='"+businessid+"';")
+				# Update review_count & stars in business tables
 				for row_bus in rowRes_bus:
 					session.execute("update business_by_id set review_count="+ str(row_bus.review_count+1) +" where businessid='"+businessid+"';")
 					session.execute("update business_by_city set review_count="+ str(row_bus.review_count+1) +" where businessid='"+businessid+"' and city='"+city+"';")
@@ -628,7 +605,7 @@ def insert_review(request):
 				pass
 			row.review_count
 			session.execute("update user set review_count="+str(row.review_count+1)+" where userid='"+userid+"';")
-			# epanalhptika mexri na breis ena review id pou na mhn uparxei mesa
+			# iteratively until you find a reviewid that doesn't exist
 			reviewid=0
 			while True:
 				query_str="select * from review_by_businessid where businessid='"+businessid+"' and reviewid='"+str(reviewid)+"';"
@@ -639,12 +616,12 @@ def insert_review(request):
 			date=datetime.today().strftime('%Y-%m-%d %H:%M:%S')
 			# insert review
 			query_str="insert into review_by_businessid(businessid, reviewid,date, review, stars, userid) values('"+businessid+"','"+str(reviewid)+"','"+date+"','"+review+"',"+str(stars)+",'"+userid+"');"
-			print query_str
 			session.execute(query_str)
 			query_str="insert into review_by_userid(businessid, reviewid,date, review, stars, userid) values('"+businessid+"','"+str(reviewid)+"','"+date+"','"+review+"',"+str(stars)+",'"+userid+"');"
 			session.execute(query_str)
 
 			rowRes_bus=session.execute("select review_count, stars from business_by_id where businessid='"+businessid+"';")
+			# Update review_count & stars in business tables
 			for row_bus in rowRes_bus:
 				session.execute("update business_by_id set review_count="+ str(row_bus.review_count+1) +" where businessid='"+businessid+"';")
 				session.execute("update business_by_city set review_count="+ str(row_bus.review_count+1) +" where businessid='"+businessid+"' and city='"+city+"';")
@@ -658,6 +635,7 @@ def insert_review(request):
 	else:
 		return HttpResponse("<h1>POST method is not supported</h1>",{})
 
+# The page that shows if a tip insertion has successful
 def insert_tip(request):
 	if request.method=="GET":
 		if 'businessid' not in request.GET or 'userid'not in request.GET or 'username'not in request.GET or 'tip'not in request.GET:
@@ -679,28 +657,24 @@ def insert_tip(request):
 		query_str="select * from user where userid='" + userid + "';"
 		rowRes=session.execute(query_str);
 		if not rowRes:
-			print("User doesn't exist.")
-			if checkIfExists: # an den uparxei o xrhsths kai thelw na dhmiourghsw
+			if checkIfExists: # if the user doesn't exist, create him
 				# insert user 
 				query_str="insert into user(userid, average_stars,fans, name, review_count) values('"+userid+"',"+str(0)+","+str(0)+",'"+username+"', "+str(0)+");"
-				print(query_str)
 				session.execute(query_str)
 				date=datetime.today().strftime('%Y-%m-%d %H:%M:%S')
 				# insert tip
 				query_str="insert into tip_by_businessid(businessid,date, tip, userid) values('"+businessid+"','"+date+"','"+tip+"','"+userid+"');"
-				print query_str
 				session.execute(query_str)
 				query_str="insert into tip_by_userid(businessid,date, tip, userid) values('"+businessid+"','"+date+"','"+tip+"','"+userid+"');"
 				session.execute(query_str)
 				successfulInsert=True
 				createUser=True
 			else:
-				print("Not going to add user. Not going to add tip")
+				print "Not going to add user. Not going to add tip" 
 		else:
 			date=datetime.today().strftime('%Y-%m-%d %H:%M:%S')
 			# insert tip
 			query_str="insert into tip_by_businessid(businessid,date, tip, userid) values('"+businessid+"','"+date+"','"+tip+"','"+userid+"');"
-			print query_str
 			session.execute(query_str)
 			query_str="insert into tip_by_userid(businessid,date, tip, userid) values('"+businessid+"','"+date+"','"+tip+"','"+userid+"');"
 			session.execute(query_str)
@@ -711,6 +685,7 @@ def insert_tip(request):
 	else:
 		return HttpResponse("<h1>POST method is not supported</h1>",{})
 
+# This page shows all the info about a user
 def user(request):
 	if request.method=="GET":
 		if 'userid' not in request.GET:
@@ -725,10 +700,9 @@ def user(request):
 			for row_user in rowRes_user:pass
 		user={}
 		user['name']=row_user.name
-		# user['average_stars']=row_user.average_stars
 		user['review_count']=row_user.review_count
 		
-		# Get all reviews and tips of this user
+		# Get all reviews of this user
 		reviews=[]
 		query_str="select * from review_by_userid where userid='" + userid + "';"
 		rowRes=session.execute(query_str);
@@ -746,8 +720,9 @@ def user(request):
 					pass
 			review['business_name']=row_business.name
 			reviews.append(review)
-		user['average_stars']=star_sum/float(len(reviews))
+		user['average_stars']=0.5*round(star_sum/float(len(reviews))/0.5)
 
+		# Get all tips of this user
 		tips=[]
 		query_str="select * from tip_by_userid where userid='" + userid + "';"
 		rowRes=session.execute(query_str);

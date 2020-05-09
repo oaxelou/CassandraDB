@@ -1,3 +1,7 @@
+<!--  Olympia Axelou, May 2020
+ This file is an HTML template of the project "A POI search engine using CassandraDB"
+ It's used in the Django Project. So, it can't be run alone!
+  -->
 {% load static %}
 <html>
   <head>
@@ -22,16 +26,12 @@
     </script>
   </head>
   <body>
-    <!-- {{cities}} -->
     <div class="s01">
       <form action="search" method="get" autocomplete="on">
         <fieldset>
           <legend>Discover the Amazing City</legend>
         </fieldset>
         <div class="inner-form">
-         <!--<div class="input-field first-wrap">
-            <input id="search" type="text" placeholder="What are you looking for?" />
-          </div>-->
           <div class="input-field second-wrap">
             <input id="location" type="text" name="city" placeholder="location" />
           </div>
