@@ -1,0 +1,6 @@
+review_id
+user_id
+business_id
+stars
+text
+date

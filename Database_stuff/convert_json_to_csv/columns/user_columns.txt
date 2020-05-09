@@ -1,0 +1,5 @@
+user_id
+name
+review_count
+fans
+average_stars
