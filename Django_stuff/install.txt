@@ -1,0 +1,20 @@
+(Install) Οδηγίες εγκατάστασης της εφαρμογής:
+
+Η ιστοσελίδα είναι γραμμένη σε Django 1.11. Για να αναπαράγει κάποιος το χτίσιμο της ιστοσελίδας μας πρέπει να ακολουθήσει τα εξής βήματα:
+1)	Να δημιουργήσει ένα virtual environment όπου θα δημιουργήσει το Django project.
+Linux: $> virtualenv -p python2 .
+2)	Να ενεργοποιήσει το virtual environment.
+Linux: $> source bin/activate
+3)	Να σιγουρευτεί πως όλα τα πακέτα που χρειάζονται για την εφαρμογή μας είναι ήδη εγκατεστημένα στο virtual environment. Τα πακέτα που χρειάζονται είναι στο requirements.txt στο GitHub (https://github.com/oaxelou/CassandraDB/blob/master/Django_stuff/requirements.txt). Οπότε πρέπει να τρέξει την εντολή (με την προϋπόθεση πως το αρχείο requirements.txt βρίσκεται στο directory env:
+Linux: $> pip install -r requirements.txt 
+4)	Με την προϋπόθεση ότι είναι εγκατεστημένος ο server της Cassandra, να σηκώσει το server:
+Linux: $> sudo Cassandra -R -f
+5)	Να συνδεθεί στο server χρησιμοποιώντας το CQL shell:
+Linux: $> cqlsh --request-timeout=60000
+6)	Να δημιουργήσει το keyspace και έπειτα όλους τους πίνακες έναν-έναν. Οι εντολές είναι εδώ: https://github.com/oaxelou/CassandraDB/blob/master/Database_stuff/create_db.cql
+7)	(Προαιρετικά) να περάσει στη βάση το YELP dataset (τα JSON αρχεία που βρίσκονται εδώ: https://drive.google.com/drive/u/2/folders/1_InUB9aJVdmyoqU6tSkUNvcXTp49DulO ) χρησιμοποιώντας τα python scripts: https://github.com/oaxelou/CassandraDB/tree/master/Database_stuff/insert_csv_to_db_scripts
+8)	Να κατεβάσει ολόκληρο το project directory (src) από το Github στον φάκελο env 
+9)	Να σηκώσει τον django server. Δηλαδή, στο directory env\src:
+Linux: $> python manage.py runserver
+10)	Τέλος, για να τρέξει την εφαρμογή, πρέπει να πλοηγηθεί μέσω ενός browser στη διεύθυνση που αντιστοιχεί στον django server, δηλαδή στο localhost + django port: http://127.0.0.1:8000/
+
