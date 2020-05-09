@@ -15,20 +15,22 @@
 			{% if createUser %}
 				<h4>User successfully created</h4>
 			{% endif %}
+	        <div class="poi">
+				<!-- Userid: {{userid}}<br> -->
+				<p><b>Name</b>: {{username}}<br>
+				<b>Stars</b>: {{stars}}<br>
+				<b>Review</b>: {{review}}<br></p>
+				
+				<form action="/user" method="get">
+		          <input type="hidden" name="userid" value="{{userid}}">
+		          <button type="submit">See more on this user...</button>
+		        </form>
+	        </div>
 		{% else %}
 			<h3>Review has not been inserted</h3>
+			<p>The user does not exist & the box was not checked in order to create the user. 
+			Go back if you want to change something in the form.</p>
 		{% endif %}
-        <div class="poi">
-			<!-- Userid: {{userid}}<br> -->
-			<p><b>Name</b>: {{username}}<br>
-			<b>Stars</b>: {{stars}}<br>
-			<b>Review</b>: {{review}}<br></p>
-			
-			<form action="/user" method="get">
-	          <input type="hidden" name="userid" value="{{userid}}">
-	          <button type="submit">See more on this user...</button>
-	        </form>
-        </div>
 	</div>
   </body>
 </html> 

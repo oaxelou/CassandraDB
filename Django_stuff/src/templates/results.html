@@ -10,6 +10,10 @@
         <div class="home_btn">
           <a href="/">Home</a>
         </div>
+        <h4> Search filters:</h4>
+        <p>{% for filter in search_filters %}
+        {{filter}}<br>
+        {% endfor %}</p>
         <h1>Search Results:</h1>
         {% for poi in pois %}
           <div class="poi">

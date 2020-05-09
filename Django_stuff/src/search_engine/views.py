@@ -96,6 +96,7 @@ def results(request):
 			pois[len(pois)-1]['has_tv']=general_attributes['has_tv']
 			pois[len(pois)-1]['wifi']=general_attributes['wifi']
 
+		search_filters=[]
 		# FILTER POIS BY THE CATEGORIES
 		if 'categories' in request.GET:
 			# print "Found categories:",request.GET.getlist('categories')
@@ -104,6 +105,7 @@ def results(request):
 			categ_num=0
 			for category in categories:
 				if category in request.GET:
+					search_filters.append("Category tag: " + category)
 					categ_num+=1
 					for poi in pois:
 						if category in poi['categories'] and poi not in category_filtered_pois:
@@ -116,16 +118,26 @@ def results(request):
 			print "SHOULD NEVER REACH THIS. categories not in parameters"
 			return HttpResponse("<h1>No categories specified. No data to display!</h1>",{})
 
-
+		
 		# FILTER POIS BY STAR RATING
 		min_stars=0
-		if 'one-star' in request.GET:min_stars=1
-		if 'two-stars' in request.GET:min_stars=2
-		if 'three-stars' in request.GET:min_stars=3
-		if 'four-stars' in request.GET:min_stars=4
-		if 'five-stars' in request.GET:min_stars=5
+		if 'one-star' in request.GET:
+			min_stars=1
+			search_filters.append("1 star")
+		if 'two-stars' in request.GET:
+			min_stars=2
+			search_filters.append("2 stars")
+		if 'three-stars' in request.GET:
+			min_stars=3
+			search_filters.append("3 stars")
+		if 'four-stars' in request.GET:
+			min_stars=4
+			search_filters.append("4 stars")
+		if 'five-stars' in request.GET:
+			min_stars=5
+			search_filters.append("5 stars")
 		print "Should have minimum ", min_stars, " stars."
-
+		
 		min_stars_pois=[]
 		for poi in pois:
 			if min_stars<= poi['stars']:
@@ -134,12 +146,12 @@ def results(request):
 
 		# FILTER POIS BY NOISE LEVEL
 		noise_levels=[]
-		if 'quiet' in request.GET:noise_levels.append('quiet')
-		if 'average' in request.GET:noise_levels.append('average')
-		if 'loud' in request.GET:noise_levels.append('loud')
-		if 'very-loud' in request.GET:noise_levels.append('very-loud')
+		if 'quiet' in request.GET:noise_levels.append('quiet');search_filters.append("quiet")
+		if 'average' in request.GET:noise_levels.append('average');search_filters.append("average")
+		if 'loud' in request.GET:noise_levels.append('loud');search_filters.append("loud")
+		if 'very-loud' in request.GET:noise_levels.append('very-loud');search_filters.append("very-loud")
 		noise_level_pois=[]
-		print "\nnoise levels:", noise_levels
+		
 		if noise_levels:
 			for noise_level in noise_levels:
 				for poi in pois:
@@ -150,12 +162,12 @@ def results(request):
 
 		# FILTER POIS BY MEAL
 		meals=[]
-		if 'meal-breakfast' in request.GET:meals.append('breakfast')
-		if 'meal-brunch' in request.GET:meals.append('brunch')
-		if 'meal-lunch' in request.GET:meals.append('lunch')
-		if 'meal-dinner' in request.GET:meals.append('dinner')
-		if 'meal-dessert' in request.GET:meals.append('dessert')
-		if 'meal-latenight' in request.GET:meals.append('latenight')
+		if 'meal-breakfast' in request.GET:meals.append('breakfast');search_filters.append("meal: breakfast")
+		if 'meal-brunch' in request.GET:meals.append('brunch');search_filters.append("meal: brunch")
+		if 'meal-lunch' in request.GET:meals.append('lunch');search_filters.append("meal: lunch")
+		if 'meal-dinner' in request.GET:meals.append('dinner');search_filters.append("meal: dinner")
+		if 'meal-dessert' in request.GET:meals.append('dessert');search_filters.append("meal: dessert")
+		if 'meal-latenight' in request.GET:meals.append('latenight');search_filters.append("meal: latenight")
 		meals_pois=[]
 		print "\ngood_for_meals:",meals
 		if meals:
@@ -170,11 +182,11 @@ def results(request):
 
 		# FILTER POIS BY BUSINESS PARKING
 		parkings=[]
-		if 'parking-garage' in request.GET:parkings.append('garage')
-		if 'parking-lot' in request.GET:parkings.append('lot')
-		if 'parking-street' in request.GET:parkings.append('street')
-		if 'parking-valet' in request.GET:parkings.append('valet')
-		if 'parking-validated' in request.GET:parkings.append('validated')
+		if 'parking-garage' in request.GET:parkings.append('garage');search_filters.append("parking: garage")
+		if 'parking-lot' in request.GET:parkings.append('lot');search_filters.append("parking: lot")
+		if 'parking-street' in request.GET:parkings.append('street');search_filters.append("parking: street")
+		if 'parking-valet' in request.GET:parkings.append('valet');search_filters.append("parking: valet")
+		if 'parking-validated' in request.GET:parkings.append('validated');search_filters.append("parking: validated")
 		parkings_pois=[]
 		print "\bbusiness_parking:",parkings
 		if parkings:
@@ -189,14 +201,14 @@ def results(request):
 
 		# FILTER POIS BY AMBIENCE
 		ambiences=[]
-		if'ambience-romantic' in request.GET:ambiences.append('romantic')
-		if'ambience-intimate' in request.GET:ambiences.append('intimate')
-		if'ambience-classy' in request.GET:ambiences.append('classy')
-		if'ambience-hipster' in request.GET:ambiences.append('hipster')
-		if'ambience-divey' in request.GET:ambiences.append('divey')
-		if'ambience-touristy' in request.GET:ambiences.append('touristy')
-		if'ambience-upscale' in request.GET:ambiences.append('upscale')
-		if'ambience-casual' in request.GET:ambiences.append('casual')
+		if'ambience-romantic' in request.GET:ambiences.append('romantic');search_filters.append("ambience: romantic")
+		if'ambience-intimate' in request.GET:ambiences.append('intimate');search_filters.append("ambience: intimate")
+		if'ambience-classy' in request.GET:ambiences.append('classy');search_filters.append("ambience: classy")
+		if'ambience-hipster' in request.GET:ambiences.append('hipster');search_filters.append("ambience: hipster")
+		if'ambience-divey' in request.GET:ambiences.append('divey');search_filters.append("ambience: divey")
+		if'ambience-touristy' in request.GET:ambiences.append('touristy');search_filters.append("ambience: touristy")
+		if'ambience-upscale' in request.GET:ambiences.append('upscale');search_filters.append("ambience: upscale")
+		if'ambience-casual' in request.GET:ambiences.append('casual');search_filters.append("ambience: casual")
 		ambiences_pois=[]
 		print "\bambiences:",ambiences
 		if ambiences:
@@ -212,13 +224,13 @@ def results(request):
 		
 		#FILTER POIS BY MUSIC
 		musics=[]
-		if 'music-dj' in request.GET:musics.append('dj')
-		if 'music-background' in request.GET:musics.append('background')
-		if 'music-music' in request.GET:musics.append('music')
-		if 'music-karaoke' in request.GET:musics.append('karaoke')
-		if 'music-live' in request.GET:musics.append('live')
-		if 'music-video' in request.GET:musics.append('video')
-		if 'music-jukebox' in request.GET:musics.append('jukebox')
+		if 'music-dj' in request.GET:musics.append('dj');search_filters.append("ambience: dj")
+		if 'music-background' in request.GET:musics.append('background');search_filters.append("ambience: background")
+		if 'music-music' in request.GET:musics.append('music');search_filters.append("ambience: music")
+		if 'music-karaoke' in request.GET:musics.append('karaoke');search_filters.append("ambience: karaoke")
+		if 'music-live' in request.GET:musics.append('live');search_filters.append("ambience: live")
+		if 'music-video' in request.GET:musics.append('video');search_filters.append("ambience: video")
+		if 'music-jukebox' in request.GET:musics.append('jukebox');search_filters.append("ambience: jukebox")
 		music_pois=[]
 		print "\bmusics:",musics
 		if musics:
@@ -238,96 +250,134 @@ def results(request):
 			isOk=True
 			if 'appointment-only' in request.GET: 
 				atleastOne=True
+				if "appointment-only" not in search_filters:
+					search_filters.append("appointment-only")
 				if poi['by_appointment_only']!='True':
 					isOk=False
 					continue
 			if 'accepts-card' in request.GET:
 				atleastOne=True
+				if "accepts-card" not in search_filters:
+					search_filters.append("accepts-card")
 				if poi['business_accepts_credit_cards']!='True':
 					isOk=False
 					continue
 			if 'accepts-bitcoin' in request.GET:
 				atleastOne=True
+				if "accepts-bitcoin" not in search_filters:
+					search_filters.append("accepts-bitcoin")
 				if poi['business_accepts_bitcoin']!='True':
 					isOk=False
 					continue
 			if 'hasTv' in request.GET:
 				atleastOne=True
+				if "hasTv" not in search_filters:
+					search_filters.append("hasTv")
 				if poi['has_tv']!='True':
 					isOk=False
 					continue
 			if 'hasWifi' in request.GET:
 				atleastOne=True
+				if "hasWifi" not in search_filters:
+					search_filters.append("hasWifi")
 				if poi['wifi']!='free':
 					isOk=False
 					continue
 			if 'alcohol' in request.GET:
 				atleastOne=True
+				if "alcohol" not in search_filters:
+					search_filters.append("alcohol")
 				if poi['alcohol']!='full_bar' and poi['alcohol']!='beer_and_wine':
 					isOk=False
 					continue
 			if 'happy-hour' in request.GET:
 				atleastOne=True
+				if "happy-hour" not in search_filters:
+					search_filters.append("happy-hour")
 				if poi['happyhour']!='True':
 					isOk=False
 					continue
 			if 'good-for-dancing' in request.GET:
 				atleastOne=True
+				if "good-for-dancing" not in search_filters:
+					search_filters.append("good-for-dancing")
 				if poi['good_for_dancing']!='True':
 					isOk=False
 					continue
 			if 'reservations' in request.GET:
 				atleastOne=True
+				if "reservations" not in search_filters:
+					search_filters.append("reservations")
 				if poi['restaurants_reservations']!='True':
 					isOk=False
 					continue
 			if 'caters' in request.GET:
 				atleastOne=True
+				if "caters" not in search_filters:
+					search_filters.append("caters")
 				if poi['caters']!='True':
 					isOk=False
 					continue
 			if 'take-out' in request.GET:
 				atleastOne=True
+				if "take-out" not in search_filters:
+					search_filters.append("take-out")
 				if poi['restaurants_takeout']!='True':
 					isOk=False
 					continue
 			if 'good-for-groups' in request.GET:
 				atleastOne=True
+				if "good-for-groups" not in search_filters:
+					search_filters.append("good-for-groups")
 				if poi['restaurants_good_for_groups']!='True':
 					isOk=False
 					continue
 			if 'delivery' in request.GET:
 				atleastOne=True
+				if "delivery" not in search_filters:
+					search_filters.append("delivery")
 				if poi['restaurants_delivery']!='True':
 					isOk=False
 					continue
 			if 'drive-thru' in request.GET:
 				atleastOne=True
+				if "drive-thru" not in search_filters:
+					search_filters.append("drive-thru")
 				if poi['drivethru']!='True':
 					isOk=False
 					continue
 			if 'outdoor-seating' in request.GET:
 				atleastOne=True
+				if "outdoor-seating" not in search_filters:
+					search_filters.append("outdoor-seating")
 				if poi['outdoorseating']!='True':
 					isOk=False
 					continue
 			if 'bike-parking' in request.GET:
 				atleastOne=True
+				if "bike-parking" not in search_filters:
+					search_filters.append("bike-parking")
 				if poi['bikeparking']!='True':
 					isOk=False
 					continue
 			if 'wheelchair' in request.GET:
 				atleastOne=True
+				if "wheelchair" not in search_filters:
+					search_filters.append("wheelchair")
 				if poi['wheelchair_accessible']!='True':
 					isOk=False
 					continue
 			if 'dogs-allowed' in request.GET:
 				atleastOne=True
+				if "dogs-allowed" not in search_filters:
+					search_filters.append("dogs-allowed")
 				if poi['dogsallowed']!='True':
 					isOk=False
 					continue
 			if 'good-for-kids' in request.GET:
 				atleastOne=True
+				if "good-for-kids" not in search_filters:
+					search_filters.append("good-for-kids")
 				if poi['goodforkids']!='True':
 					isOk=False
 					continue
@@ -342,7 +392,7 @@ def results(request):
 	
 		# poi['restaurants_pricerange']
 
-		context={'pois':pois}
+		context={'pois':pois,"search_filters":search_filters}
 		return render(request, "results.html", context) # {}: context variables
 	else:
 		return HttpResponse("<h1>POST method is not supported</h1>",{})
@@ -487,6 +537,8 @@ def business(request):
 			reviews.append(review)
 			# print "\n\n"
 		poi['stars']=0.5*round(star_sum/float(len(reviews))/0.5)
+		session.execute("update business_by_id set stars="+ str(poi['stars']) +" where businessid='"+request.GET['businessid']+"';")
+		session.execute("update business_by_city set stars="+ str(poi['stars']) +" where businessid='"+request.GET['businessid']+"' and city='"+poi['city']+"';")
 		review_count=len(reviews)
 		# change review_count & stars here
 		query_str="select * from tip_by_businessid where businessid='" + request.GET['businessid'] + "';"
@@ -525,7 +577,7 @@ def insert_review(request):
 		userid=request.GET.get('userid')
 		username=request.GET.get('username')
 		review=request.GET.get('review').replace("'", "''")
-		stars=request.GET.get('stars')
+		stars=float(request.GET.get('stars'))
 		city=request.GET.get('city')
 		if 'checkIfExists' in request.GET:
 			checkIfExists=True
@@ -565,8 +617,8 @@ def insert_review(request):
 				for row_bus in rowRes_bus:
 					session.execute("update business_by_id set review_count="+ str(row_bus.review_count+1) +" where businessid='"+businessid+"';")
 					session.execute("update business_by_city set review_count="+ str(row_bus.review_count+1) +" where businessid='"+businessid+"' and city='"+city+"';")
-					session.execute("update business_by_id set stars="+ str(row_bus.stars+stars)/2 +" where businessid='"+businessid+"';")
-					session.execute("update business_by_city set stars="+ str(row_bus.stars+stars)/2 +" where businessid='"+businessid+"' and city='"+city+"';")
+					session.execute("update business_by_id set stars="+ str((row_bus.stars+stars)/2) +" where businessid='"+businessid+"';")
+					session.execute("update business_by_city set stars="+ str((row_bus.stars+stars)/2) +" where businessid='"+businessid+"' and city='"+city+"';")
 					break
 				createUser=True
 			else:
@@ -596,8 +648,8 @@ def insert_review(request):
 			for row_bus in rowRes_bus:
 				session.execute("update business_by_id set review_count="+ str(row_bus.review_count+1) +" where businessid='"+businessid+"';")
 				session.execute("update business_by_city set review_count="+ str(row_bus.review_count+1) +" where businessid='"+businessid+"' and city='"+city+"';")
-				session.execute("update business_by_id set stars="+ str(row_bus.stars+stars)/2 +" where businessid='"+businessid+"';")
-				session.execute("update business_by_city set stars="+ str(row_bus.stars+stars)/2 +" where businessid='"+businessid+"' and city='"+city+"';")
+				session.execute("update business_by_id set stars="+ str((row_bus.stars+stars)/2) +" where businessid='"+businessid+"';")
+				session.execute("update business_by_city set stars="+ str((row_bus.stars+stars)/2) +" where businessid='"+businessid+"' and city='"+city+"';")
 				break
 			successfulInsert=True
 
