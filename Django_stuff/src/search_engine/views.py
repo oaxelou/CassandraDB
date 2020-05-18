@@ -720,8 +720,9 @@ def user(request):
 					pass
 			review['business_name']=row_business.name
 			reviews.append(review)
-		user['average_stars']=0.5*round(star_sum/float(len(reviews))/0.5)
-
+		if len(reviews): user['average_stars']=0.5*round(star_sum/float(len(reviews))/0.5)
+		else: user['average_stars']=0
+		
 		# Get all tips of this user
 		tips=[]
 		query_str="select * from tip_by_userid where userid='" + userid + "';"
